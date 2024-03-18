@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://Overlord.cs" id="1_nkm7w"]
 
 [node name="Node2D" type="Node2D"]
+position = Vector2(17, 20)
 script = ExtResource("1_nkm7w")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]

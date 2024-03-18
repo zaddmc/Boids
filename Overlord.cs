@@ -1,16 +1,29 @@
 using Godot;
 using System;
+using System.Collections.Generic;
 
-public partial class Overlord : Node2D
-{
-	// Called when the node enters the scene tree for the first time.
-	public override void _Ready()
-	{
-	int ef = 34;		
-	} 
+public partial class Overlord : Node2D {
+    // Called when the node enters the scene tree for the first time.
+    public override void _Ready() {
+        Sprites = new List<Sprite2D>();
 
-	// Called every frame. 'delta' is the elapsed time since the previous frame.
-	public override void _Process(double delta)
-	{
-	}
+        for (int i = 0; i < 100; i++) {
+            Sprite2D sprite2D = new Sprite2D();
+            sprite2D.Texture = (Texture2D)GD.Load("res://icon.svg");
+            //base._Ready();
+            Node2D node = GetNode<Node2D>(".");
+            Random random = new Random();
+            sprite2D.Position = new Vector2(random.NextSingle() * 1000, random.NextSingle() * 500);
+
+            Sprites.Add(sprite2D);
+            node.AddChild(sprite2D);
+
+        }
+
+    }
+    public List<Sprite2D> Sprites { get; set; }
+
+    // Called every frame. 'delta' is the elapsed time since the previous frame.
+    public override void _Process(double delta) {
+    }
 }
