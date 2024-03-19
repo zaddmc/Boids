@@ -70,3 +70,16 @@ public partial class Overlord : Node2D {
 
     }
 }
+
+
+
+
+public class OwnSprite {
+    public Sprite2D Sprite { get; }
+    public Vector2 Velocity { get; set; }
+    public OwnSprite(Sprite2D sprite) {
+        Sprite = sprite;
+        Velocity = new Vector2(0, 0);
+    }
+
+}
