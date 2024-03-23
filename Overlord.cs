@@ -4,10 +4,11 @@ using System.Collections.Generic;
 
 public partial class Overlord : Node2D {
     [Export]
-    public int SpriteCount = 100;
+    static public int SpriteCount = 2;
     [Export]
-    public bool EndlessScreen = true;
+    static public bool EndlessScreen = true;
 
+    static public float Radius = 250;
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready() {
@@ -27,7 +28,7 @@ public partial class Overlord : Node2D {
         }
 
     }
-    public List<OwnSprite> Sprites { get; set; }
+    static public List<OwnSprite> Sprites { get; set; }
 
     // Called every frame. 'delta' is the elapsed time since the previous frame.
     public override void _Process(double delta) {
@@ -39,7 +40,7 @@ public partial class Overlord : Node2D {
 
             sprite.Sprite.Position += newOffset;
             if (EndlessScreen) {
-            Window window = GetViewport().GetWindow();
+                Window window = GetViewport().GetWindow();
                 if (sprite.Sprite.Position.X >= window.Size.X)
                     sprite.Sprite.Position -= new Vector2(window.Size.X, 0);
                 if (sprite.Sprite.Position.X <= 0)
@@ -101,6 +102,12 @@ public class OwnSprite {
         Random rnd = new Random();
         Sprite.Rotation = rnd.NextSingle() * Mathf.Pi * 2;
     }
-
+    public bool IsInRange(OwnSprite other) {
+        // all these values are squared
+        float xdis = (other.Sprite.Position.X - Sprite.Position.X) * (other.Sprite.Position.X - Sprite.Position.X);
+        float ydis = (other.Sprite.Position.Y - Sprite.Position.Y) * (other.Sprite.Position.Y - Sprite.Position.Y);
+        float rdis = Overlord.Radius * Overlord.Radius;
+        return (xdis + ydis - rdis) <= 0;
+    }
 
 }
