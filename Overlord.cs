@@ -4,41 +4,54 @@ using System.Collections.Generic;
 
 public partial class Overlord : Node2D {
     [Export]
-    public int SpriteCount = 10;
+    public int SpriteCount = 100;
+    [Export]
+    public bool EndlessScreen = true;
+
+
     // Called when the node enters the scene tree for the first time.
     public override void _Ready() {
-        Sprites = new List<Sprite2D>();
+        Sprites = new List<OwnSprite>();
+        Random random = new Random();
+        Node2D node = GetNode<Node2D>(".");
 
         for (int i = 0; i < SpriteCount; i++) {
-            Sprite2D sprite2D = new Sprite2D();
-            sprite2D.Texture = (Texture2D)GD.Load("res://icon.svg");
-            //base._Ready();
-            Node2D node = GetNode<Node2D>(".");
-            Random random = new Random();
-            sprite2D.Position = new Vector2(random.NextSingle() * 1000, random.NextSingle() * 500);
 
-            RigidBody2D rigidBody = new RigidBody2D();
-            rigidBody.AngularVelocity = 1;
-            rigidBody.Rotation = random.NextSingle() * 2;
-            rigidBody.GravityScale = 0;
 
-            sprite2D.AddChild(rigidBody);
-            
+            OwnSprite sprite = new OwnSprite();
+            sprite.Sprite.Position = new Vector2(random.NextSingle() * 1000, random.NextSingle() * 500);
 
-            Sprites.Add(sprite2D);
-            node.AddChild(sprite2D);
-
+            Sprites.Add(sprite);
+            node.AddChild(sprite.Sprite);
 
         }
 
     }
-    public List<Sprite2D> Sprites { get; set; }
+    public List<OwnSprite> Sprites { get; set; }
 
     // Called every frame. 'delta' is the elapsed time since the previous frame.
     public override void _Process(double delta) {
-        
+        MoveSprites();
     }
-    public void Alignment() {//find hvilke boids der er i radius. if is in range then. så gem deres alignment/retning i xy og antal. bagefter divider med x og y med antal. 
+    public void MoveSprites() {
+        foreach (var sprite in Sprites) {
+            Vector2 newOffset = new Vector2(sprite.VelocityNUM * MathF.Cos(sprite.Sprite.Rotation), sprite.VelocityNUM * MathF.Sin(sprite.Sprite.Rotation));
+
+            sprite.Sprite.Position += newOffset;
+            if (EndlessScreen) {
+            Window window = GetViewport().GetWindow();
+                if (sprite.Sprite.Position.X >= window.Size.X)
+                    sprite.Sprite.Position -= new Vector2(window.Size.X, 0);
+                if (sprite.Sprite.Position.X <= 0)
+                    sprite.Sprite.Position += new Vector2(window.Size.X, 0);
+                if (sprite.Sprite.Position.Y >= window.Size.Y)
+                    sprite.Sprite.Position -= new Vector2(0, window.Size.Y);
+                if (sprite.Sprite.Position.Y <= 0)
+                    sprite.Sprite.Position += new Vector2(0, window.Size.Y);
+            }
+        }
+    }
+    public void Alignment() {//find hvilke boids der er i radius. if is in range then.  gem deres alignment/retning i xy og antal. bagefter divider med x og y med antal. 
 
         float radius = 100;
         for (int i = 0; i < Sprites.Count; i++) {
@@ -48,10 +61,10 @@ public partial class Overlord : Node2D {
             float yLowRange;
             float yHighRange;
 
-            xLowRange = Sprites[0].Position.X - radius;
-            xHighRange = Sprites[0].Position.X - radius;
-            yLowRange = Sprites[0].Position.Y - radius;
-            yHighRange = Sprites[0].Position.Y - radius;
+            xLowRange = Sprites[0].Sprite.Position.X - radius;
+            xHighRange = Sprites[0].Sprite.Position.X - radius;
+            yLowRange = Sprites[0].Sprite.Position.Y - radius;
+            yHighRange = Sprites[0].Sprite.Position.Y - radius;
 
             for (int j = 0; j < Sprites.Count; j++) {
 
@@ -76,10 +89,18 @@ public partial class Overlord : Node2D {
 
 public class OwnSprite {
     public Sprite2D Sprite { get; }
-    public Vector2 Velocity { get; set; }
-    public OwnSprite(Sprite2D sprite) {
-        Sprite = sprite;
-        Velocity = new Vector2(0, 0);
+    public Vector2 VelocityVEC { get; set; } // prefferbly dont use this
+    public float VelocityNUM { get; set; }
+    public OwnSprite() {
+        Sprite = new Sprite2D();
+        Sprite.Texture = (Texture2D)GD.Load("res://arrow.png");
+        Sprite.Scale = new Vector2(0.075f, 0.075f);
+        VelocityNUM = 1;
+        VelocityVEC = new Vector2(0, 0);
+
+        Random rnd = new Random();
+        Sprite.Rotation = rnd.NextSingle() * Mathf.Pi * 2;
     }
+
 
 }
