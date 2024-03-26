@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public partial class Overlord : Node2D {
     [Export]
-    static public int SpriteCount = 2;
+    static public int SpriteCount = 100;
     [Export]
     static public bool EndlessScreen = true;
 
@@ -38,7 +38,8 @@ public partial class Overlord : Node2D {
         foreach (var sprite in Sprites) {
             Vector2 newOffset = new Vector2(sprite.VelocityNUM * MathF.Cos(sprite.Sprite.Rotation), sprite.VelocityNUM * MathF.Sin(sprite.Sprite.Rotation));
 
-            sprite.Sprite.Position += newOffset;
+            //sprite.Sprite.Position += newOffset;
+            sprite.Sprite.Translate(newOffset);
             if (EndlessScreen) {
                 Window window = GetViewport().GetWindow();
                 if (sprite.Sprite.Position.X >= window.Size.X)
