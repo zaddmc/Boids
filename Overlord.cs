@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public partial class Overlord : Node2D {
     [Export]
-    static public int SpriteCount = 100;
+    static public int SpriteCount = 50;
     [Export]
     static public bool EndlessScreen = true;
 
@@ -33,10 +33,11 @@ public partial class Overlord : Node2D {
     // Called every frame. 'delta' is the elapsed time since the previous frame.
     public override void _Process(double delta) {
         MoveSprites();
+        Alignment();
     }
     public void MoveSprites() {
         foreach (var sprite in Sprites) {
-            Vector2 newOffset = new Vector2(sprite.VelocityNUM * MathF.Cos(sprite.Sprite.Rotation), sprite.VelocityNUM * MathF.Sin(sprite.Sprite.Rotation));
+            Vector2 newOffset = new(sprite.VelocityNUM * MathF.Cos(sprite.Sprite.Rotation), sprite.VelocityNUM * MathF.Sin(sprite.Sprite.Rotation));
 
             //sprite.Sprite.Position += newOffset;
             sprite.Sprite.Translate(newOffset);
@@ -54,28 +55,40 @@ public partial class Overlord : Node2D {
         }
     }
     public void Alignment() {//find hvilke boids der er i radius. if is in range then.  gem deres alignment/retning i xy og antal. bagefter divider med x og y med antal. 
-
-        float radius = 100;
-        for (int i = 0; i < Sprites.Count; i++) {
-            float newalignment;
-            float xLowRange;
-            float xHighRange;
-            float yLowRange;
-            float yHighRange;
-
-            xLowRange = Sprites[0].Sprite.Position.X - radius;
-            xHighRange = Sprites[0].Sprite.Position.X - radius;
-            yLowRange = Sprites[0].Sprite.Position.Y - radius;
-            yHighRange = Sprites[0].Sprite.Position.Y - radius;
-
-            for (int j = 0; j < Sprites.Count; j++) {
-
+        foreach (var mainsprite in Sprites) {
+            float procent = 0.01f;
+            uint amount = 0;
+            float cummrotation = 0;
+            foreach (var other in Sprites) {
+                if (mainsprite.IsInRange(other)) {
+                    cummrotation += other.Sprite.Rotation %Mathf.Tau;
+                    amount++;
+                }
             }
-            if (xLowRange < 0) { }
+            float average = cummrotation / amount;
 
-            //Sprites[0].Position = Sprites[1].Position;
+            /*if (average>=0) {
+                mainsprite.Sprite.Rotate((average + mainsprite.Sprite.Rotation) * procent);
+            }
+            else {
+                mainsprite.Sprite.Rotate((average - mainsprite.Sprite.Rotation) * procent);
+            }*/
+            mainsprite.Sprite.Rotate((average - mainsprite.Sprite.Rotation) * procent);
 
+            //mainsprite.Sprite.Rotate(mainsprite.Sprite.Rotation - average * procent);
+            //mainsprite.Sprite.Rotate((average + mainsprite.Sprite.Rotation) * procent);
+
+
+            //float tem =temp - mainsprite.Sprite.Rotation;
+            //mainsprite.Sprite.Rotation = cummrotation / amount;
+            if (mainsprite.Equals(Sprites[0])) {
+                GD.Print(average);
+                GD.Print(cummrotation);
+                GD.Print(mainsprite.Sprite.Rotation);
+            }
+            //mainsprite.Sprite.Rotate(average*procent);
         }
+
     }
     public bool IsInRange() {
 
