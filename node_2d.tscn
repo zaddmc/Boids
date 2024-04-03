@@ -6,3 +6,27 @@
 script = ExtResource("1_nkm7w")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+
+[node name="Alignweight" type="Label" parent="."]
+offset_left = 17.0
+offset_top = 20.0
+offset_right = 113.0
+offset_bottom = 43.0
+text = "Align-weight"
+
+[node name="HSliderAlignWeight" type="HSlider" parent="Alignweight"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.042
+anchor_top = -0.478
+anchor_right = 2.719
+anchor_bottom = 1.609
+offset_left = -0.0320053
+offset_top = -0.00599957
+offset_right = -0.0240173
+offset_bottom = -0.00700378
+min_value = -10.0
+max_value = 10.0
+value = 1.0
+
+[connection signal="drag_ended" from="Alignweight/HSliderAlignWeight" to="." method="_on_h_slider_align_weight_drag_ended"]

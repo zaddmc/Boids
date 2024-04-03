@@ -10,6 +10,8 @@ public partial class Overlord : Node2D {
 
     static public float Radius = 250;
 
+    static public double AlignWeight = 0;
+
     // Called when the node enters the scene tree for the first time.
     public override void _Ready() {
         Sprites = new List<OwnSprite>();
@@ -26,7 +28,6 @@ public partial class Overlord : Node2D {
             node.AddChild(sprite.Sprite);
 
         }
-
     }
     static public List<OwnSprite> Sprites { get; set; }
 
@@ -34,6 +35,7 @@ public partial class Overlord : Node2D {
     public override void _Process(double delta) {
         MoveSprites();
         Alignment();
+        GetSliderValue();
     }
     public void MoveSprites() {
         foreach (var sprite in Sprites) {
@@ -61,42 +63,26 @@ public partial class Overlord : Node2D {
             float cummrotation = 0;
             foreach (var other in Sprites) {
                 if (mainsprite.IsInRange(other)) {
-                    cummrotation += other.Sprite.Rotation %Mathf.Tau;
+                    cummrotation += other.Sprite.Rotation % Mathf.Tau;
                     amount++;
                 }
             }
             float average = cummrotation / amount;
-
-            /*if (average>=0) {
-                mainsprite.Sprite.Rotate((average + mainsprite.Sprite.Rotation) * procent);
-            }
-            else {
-                mainsprite.Sprite.Rotate((average - mainsprite.Sprite.Rotation) * procent);
-            }*/
-            mainsprite.Sprite.Rotate((average - mainsprite.Sprite.Rotation) * procent);
-
-            //mainsprite.Sprite.Rotate(mainsprite.Sprite.Rotation - average * procent);
-            //mainsprite.Sprite.Rotate((average + mainsprite.Sprite.Rotation) * procent);
-
-
-            //float tem =temp - mainsprite.Sprite.Rotation;
-            //mainsprite.Sprite.Rotation = cummrotation / amount;
+            mainsprite.Sprite.Rotate((average - mainsprite.Sprite.Rotation) * procent * (float)AlignWeight);
             if (mainsprite.Equals(Sprites[0])) {
                 GD.Print(average);
                 GD.Print(cummrotation);
                 GD.Print(mainsprite.Sprite.Rotation);
             }
-            //mainsprite.Sprite.Rotate(average*procent);
         }
 
     }
-    public bool IsInRange() {
-
-        return true;
+    public void GetSliderValue() {//needs to be called every game loop. should be changed to an event-handler so it is called when the slider changes.
+        Slider slider = GetNode<HSlider>("Alignweight/HSliderAlignWeight");
+        AlignWeight = slider.Value;
+        GD.Print(AlignWeight);
     }
-    public void CalcAlignment() {
 
-    }
 }
 
 
