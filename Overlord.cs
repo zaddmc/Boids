@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public partial class Overlord : Node2D {
     [Export]
-    static public int SpriteCount = 50;
+    static public int SpriteCount = 100;
     [Export]
     static public bool EndlessScreen = true;
 
@@ -34,8 +34,10 @@ public partial class Overlord : Node2D {
     // Called every frame. 'delta' is the elapsed time since the previous frame.
     public override void _Process(double delta) {
         MoveSprites();
+        RotationNormalizer();
         Alignment();
         GetSliderValue();
+        Test();
     }
     public void MoveSprites() {
         foreach (var sprite in Sprites) {
@@ -54,6 +56,12 @@ public partial class Overlord : Node2D {
                 if (sprite.Sprite.Position.Y <= 0)
                     sprite.Sprite.Position += new Vector2(0, window.Size.Y);
             }
+        }
+    }
+    public void RotationNormalizer() {
+        foreach (var sprite in Sprites) {
+            if (sprite.Sprite.Rotation > Mathf.Tau)
+                sprite.Sprite.Rotation %= Mathf.Tau;
         }
     }
     public void Alignment() {//find hvilke boids der er i radius. if is in range then.  gem deres alignment/retning i xy og antal. bagefter divider med x og y med antal. 
@@ -77,12 +85,36 @@ public partial class Overlord : Node2D {
         }
 
     }
+    public void Seperate() {
+        foreach (var mainsprite in Sprites) {
+
+        }
+    }
+    public bool IsInRange() {
+
+        return true;
+    }
     public void GetSliderValue() {//needs to be called every game loop. should be changed to an event-handler so it is called when the slider changes.
         Slider slider = GetNode<HSlider>("Alignweight/HSliderAlignWeight");
         AlignWeight = slider.Value;
         GD.Print(AlignWeight);
     }
 
+    public void Test() {
+        Sprites[0].Sprite.Texture = (Texture2D)GD.Load("res://bluearrow.png");
+        GD.Print(Sprites[0].Sprite.Rotation);
+        GD.Print(Sprites[1].Sprite.Rotation);
+        foreach (var sprite in Sprites) {
+            if (sprite.Equals(Sprites[0])) continue;
+            sprite.Sprite.Texture = (Texture2D)GD.Load("res://arrow.png");
+        }
+        foreach (var sprite in Sprites) {
+            if (sprite.Equals(Sprites[0])) continue;
+            if (Sprites[0].IsInFOV(sprite))
+                sprite.Sprite.Texture = (Texture2D)GD.Load("res://redarrow.png");
+        }
+        Sprites[1].Sprite.Texture = (Texture2D)GD.Load("res://bluearrow.png");
+    }
 }
 
 
@@ -109,5 +141,15 @@ public class OwnSprite {
         float rdis = Overlord.Radius * Overlord.Radius;
         return (xdis + ydis - rdis) <= 0;
     }
+    public bool IsInFOV(OwnSprite other) {
+        //if (!IsInRange(other)) return false;
+        float thisAngle = Sprite.Rotation;
+        float otherAngle = other.Sprite.Rotation;
+        float minAngle = thisAngle - MathF.PI / 2;
+        if (minAngle < 0) minAngle += MathF.Tau;
+        float maxAngle = thisAngle + MathF.PI / 2;
+        if (maxAngle > MathF.Tau) maxAngle -= MathF.Tau;
 
+        return (minAngle < otherAngle && maxAngle > otherAngle);
+    }
 }
