@@ -33,8 +33,8 @@ public partial class Overlord : Node2D {
 
     // Called every frame. 'delta' is the elapsed time since the previous frame.
     public override void _Process(double delta) {
-        MoveSprites();
         RotationNormalizer();
+        MoveSprites();
         Alignment();
         GetSliderValue();
         Test();
@@ -61,7 +61,9 @@ public partial class Overlord : Node2D {
     public void RotationNormalizer() {
         foreach (var sprite in Sprites) {
             if (sprite.Sprite.Rotation > Mathf.Tau)
-                sprite.Sprite.Rotation %= Mathf.Tau;
+                sprite.Sprite.Rotation -= Mathf.Tau;
+            else if (sprite.Sprite.Rotation < 0)
+                sprite.Sprite.Rotation += MathF.Tau;
         }
     }
     public void Alignment() {//find hvilke boids der er i radius. if is in range then.  gem deres alignment/retning i xy og antal. bagefter divider med x og y med antal. 
@@ -142,7 +144,7 @@ public class OwnSprite {
         return (xdis + ydis - rdis) <= 0;
     }
     public bool IsInFOV(OwnSprite other) {
-        //if (!IsInRange(other)) return false;
+        if (!IsInRange(other)) return false;
         float thisAngle = Sprite.Rotation;
         float otherAngle = other.Sprite.Rotation;
         float minAngle = thisAngle - MathF.PI / 2;
