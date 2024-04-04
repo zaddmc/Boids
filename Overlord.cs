@@ -31,6 +31,9 @@ public partial class Overlord : Node2D {
     }
     static public List<OwnSprite> Sprites { get; set; }
 
+    public override void _Draw() {
+        DrawArc(Sprites[0].Sprite.Position, Radius, Sprites[0].Sprite.Rotation - MathF.PI / 3, Sprites[0].Sprite.Rotation + MathF.PI / 3, 20, Colors.AliceBlue, 5);
+    }
     // Called every frame. 'delta' is the elapsed time since the previous frame.
     public override void _Process(double delta) {
         RotationNormalizer();
@@ -40,9 +43,11 @@ public partial class Overlord : Node2D {
         GetSliderValue();
         Test();
     }
+
     public void MoveSprites() {
         foreach (var sprite in Sprites) {
             Vector2 newOffset = new(sprite.VelocityNUM * MathF.Cos(sprite.Sprite.Rotation), sprite.VelocityNUM * MathF.Sin(sprite.Sprite.Rotation));
+            sprite.VelocityVEC = newOffset * 2;
 
             //sprite.Sprite.Position += newOffset;
             sprite.Sprite.Translate(newOffset);
@@ -81,9 +86,6 @@ public partial class Overlord : Node2D {
             float average = cummrotation / amount;
             mainsprite.Sprite.Rotate((average - mainsprite.Sprite.Rotation) * procent * (float)AlignWeight);
             if (mainsprite.Equals(Sprites[0])) {
-                GD.Print(average);
-                GD.Print(cummrotation);
-                GD.Print(mainsprite.Sprite.Rotation);
             }
         }
 
@@ -119,10 +121,11 @@ public partial class Overlord : Node2D {
     public void GetSliderValue() {//needs to be called every game loop. should be changed to an event-handler so it is called when the slider changes.
         Slider slider = GetNode<HSlider>("Alignweight/HSliderAlignWeight");
         AlignWeight = slider.Value;
-        GD.Print(AlignWeight);
     }
 
     public void Test() {
+        QueueRedraw();
+
         Sprites[0].Sprite.Texture = (Texture2D)GD.Load("res://bluearrow.png");
         GD.Print(Sprites[0].Sprite.Rotation);
         GD.Print(Sprites[1].Sprite.Rotation);
@@ -135,7 +138,7 @@ public partial class Overlord : Node2D {
             if (Sprites[0].IsInFOV(sprite))
                 sprite.Sprite.Texture = (Texture2D)GD.Load("res://redarrow.png");
         }
-        Sprites[1].Sprite.Texture = (Texture2D)GD.Load("res://bluearrow.png");
+        //Sprites[1].Sprite.Texture = (Texture2D)GD.Load("res://bluearrow.png");
     }
 }
 
@@ -164,14 +167,21 @@ public class OwnSprite {
         return (xdis + ydis - rdis) <= 0;
     }
     public bool IsInFOV(OwnSprite other) {
-        if (!IsInRange(other)) return false;
+        //if (!IsInRange(other)) return false;
         float thisAngle = Sprite.Rotation;
-        float otherAngle = other.Sprite.Rotation;
-        float minAngle = thisAngle - MathF.PI / 2;
+        float otherAngle = MathF.PI - MathF.Acos((Sprite.Position - other.Sprite.Position).Normalized().X);
+
+        float minAngle = thisAngle - MathF.PI / 3;
         if (minAngle < 0) minAngle += MathF.Tau;
-        float maxAngle = thisAngle + MathF.PI / 2;
+        float maxAngle = thisAngle + MathF.PI / 3;
         if (maxAngle > MathF.Tau) maxAngle -= MathF.Tau;
 
+        if (otherAngle < 0) otherAngle += MathF.Tau;
+        if (otherAngle > MathF.Tau) otherAngle -= MathF.Tau;
+
+
+        GD.Print("other: " + otherAngle);
+        GD.Print("min: " + minAngle + " norm: " + thisAngle + " max: " + maxAngle);
         return (minAngle < otherAngle && maxAngle > otherAngle);
     }
 }

@@ -27,6 +27,5 @@ offset_right = -0.0240173
 offset_bottom = -0.00700378
 min_value = -10.0
 max_value = 10.0
-value = 1.0
 
 [connection signal="drag_ended" from="Alignweight/HSliderAlignWeight" to="." method="_on_h_slider_align_weight_drag_ended"]
