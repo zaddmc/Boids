@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public partial class Overlord : Node2D {
     [Export]
-    static public int SpriteCount = 100;
+    static public int SpriteCount = 10;
     [Export]
     static public bool EndlessScreen = true;
 
@@ -36,6 +36,7 @@ public partial class Overlord : Node2D {
         RotationNormalizer();
         MoveSprites();
         Alignment();
+        Cohesion();
         GetSliderValue();
         Test();
     }
@@ -86,6 +87,25 @@ public partial class Overlord : Node2D {
             }
         }
 
+    }
+    public void Cohesion() {//position of the object. its vector. then make the angle to the middle point. voila
+        foreach (var mainsprite in Sprites) {
+            float procent = 0.01f;
+            uint amount = 0;
+            Vector2 cummposition = new(0, 0);
+            foreach (var other in Sprites) {
+                if (mainsprite.IsInRange(other)) {
+                    cummposition = mainsprite.Sprite.Position;
+                    amount++;
+                }
+                Vector2 averagePosition = new(cummposition[0], cummposition[1]);//[0] means x and [1] means y
+                float step1 = mainsprite.Sprite.Position.AngleToPoint(averagePosition);
+                float step2 = (mainsprite.Sprite.Rotation + step1) % MathF.Tau;
+                if (step1 > 0) mainsprite.Sprite.Rotate(-step2 * procent);
+                else mainsprite.Sprite.Rotate(step2 * procent);
+
+            }
+        }
     }
     public void Seperate() {
         foreach (var mainsprite in Sprites) {
