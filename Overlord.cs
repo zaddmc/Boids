@@ -46,6 +46,7 @@ public partial class Overlord : Node2D {
 
     public void MoveSprites() {
         foreach (var sprite in Sprites) {
+            sprite.Sprite.Rotate(sprite.RotationalChange);
             Vector2 newOffset = new(sprite.VelocityNUM * MathF.Cos(sprite.Sprite.Rotation), sprite.VelocityNUM * MathF.Sin(sprite.Sprite.Rotation));
             sprite.VelocityVEC = newOffset * 2;
 
@@ -84,7 +85,8 @@ public partial class Overlord : Node2D {
                 }
             }
             float average = cummrotation / amount;
-            mainsprite.Sprite.Rotate((average - mainsprite.Sprite.Rotation) * procent * (float)AlignWeight);
+            //mainsprite.Sprite.Rotate((average - mainsprite.Sprite.Rotation) * procent * (float)AlignWeight);
+            mainsprite.RotationalChange += (average - mainsprite.Sprite.Rotation) * procent * (float)AlignWeight;
             if (mainsprite.Equals(Sprites[0])) {
             }
         }
@@ -103,16 +105,15 @@ public partial class Overlord : Node2D {
                 Vector2 averagePosition = new(cummposition[0], cummposition[1]);//[0] means x and [1] means y
                 float step1 = mainsprite.Sprite.Position.AngleToPoint(averagePosition);
                 float step2 = (mainsprite.Sprite.Rotation + step1) % MathF.Tau;
-                if (step1 > 0) mainsprite.Sprite.Rotate(-step2 * procent);
-                else mainsprite.Sprite.Rotate(step2 * procent);
+                if (step1 > 0)
+                    mainsprite.RotationalChange += -step2 * procent;
+                else
+                    mainsprite.RotationalChange += step2 * procent;
 
             }
         }
     }
     public void Seperate() {
-        foreach (var mainsprite in Sprites) {
-
-        }
     }
     public bool IsInRange() {
 
@@ -149,12 +150,14 @@ public class OwnSprite {
     public Sprite2D Sprite { get; }
     public Vector2 VelocityVEC { get; set; } // prefferbly dont use this
     public float VelocityNUM { get; set; }
+    public float RotationalChange { get; set; }
     public OwnSprite() {
         Sprite = new Sprite2D();
         Sprite.Texture = (Texture2D)GD.Load("res://arrow.png");
         Sprite.Scale = new Vector2(0.075f, 0.075f);
         VelocityNUM = 1;
         VelocityVEC = new Vector2(0, 0);
+        RotationalChange = 0;
 
         Random rnd = new Random();
         Sprite.Rotation = rnd.NextSingle() * Mathf.Pi * 2;
