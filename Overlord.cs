@@ -4,13 +4,14 @@ using System.Collections.Generic;
 
 public partial class Overlord : Node2D {
     [Export]
-    static public int SpriteCount = 10;
+    static public int SpriteCount = 100;
     [Export]
     static public bool EndlessScreen = true;
 
     static public float Radius = 250;
 
     static public double AlignWeight = 0;
+    static public double CohesionWeight = 0;
 
     // Called when the node enters the scene tree for the first time.
     public override void _Ready() {
@@ -47,6 +48,8 @@ public partial class Overlord : Node2D {
     public void MoveSprites() {
         foreach (var sprite in Sprites) {
             sprite.Sprite.Rotate(sprite.RotationalChange);
+            sprite.RotationalChange = 0;
+            RotationNormalizer();
             Vector2 newOffset = new(sprite.VelocityNUM * MathF.Cos(sprite.Sprite.Rotation), sprite.VelocityNUM * MathF.Sin(sprite.Sprite.Rotation));
             sprite.VelocityVEC = newOffset * 2;
 
@@ -106,9 +109,9 @@ public partial class Overlord : Node2D {
                 float step1 = mainsprite.Sprite.Position.AngleToPoint(averagePosition);
                 float step2 = (mainsprite.Sprite.Rotation + step1) % MathF.Tau;
                 if (step1 > 0)
-                    mainsprite.RotationalChange += -step2 * procent;
+                    mainsprite.RotationalChange += -step2 * procent*(float)CohesionWeight;
                 else
-                    mainsprite.RotationalChange += step2 * procent;
+                    mainsprite.RotationalChange += step2 * procent * (float)CohesionWeight;
 
             }
         }
@@ -120,8 +123,10 @@ public partial class Overlord : Node2D {
         return true;
     }
     public void GetSliderValue() {//needs to be called every game loop. should be changed to an event-handler so it is called when the slider changes.
-        Slider slider = GetNode<HSlider>("Alignweight/HSliderAlignWeight");
-        AlignWeight = slider.Value;
+        Slider slider1 = GetNode<HSlider>("Alignweight/HSliderAlignWeight");
+        AlignWeight = slider1.Value;
+        Slider slider2 = GetNode<HSlider>("Alignweight/HSliderCohesionWeight");
+        CohesionWeight = slider2.Value;
     }
 
     public void Test() {
@@ -136,7 +141,7 @@ public partial class Overlord : Node2D {
         }
         foreach (var sprite in Sprites) {
             if (sprite.Equals(Sprites[0])) continue;
-            if (Sprites[0].IsInFOV(sprite))
+            if (Sprites[0].IsInRange(sprite))
                 sprite.Sprite.Texture = (Texture2D)GD.Load("res://redarrow.png");
         }
         //Sprites[1].Sprite.Texture = (Texture2D)GD.Load("res://bluearrow.png");
